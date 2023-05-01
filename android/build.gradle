@@ -20,7 +20,7 @@ def safeExtGet(prop, fallback) {
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 buildscript {
     // The Android Gradle plugin is only required when opening the android folder stand-alone.
@@ -31,6 +31,7 @@ buildscript {
         repositories {
             google()
             jcenter()
+            mavenCentral()
         }
         dependencies {
             classpath 'com.android.tools.build:gradle:3.4.1'
@@ -39,7 +40,7 @@ buildscript {
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion safeExtGet('compileSdkVersion', DEFAULT_COMPILE_SDK_VERSION)
@@ -58,6 +59,7 @@ android {
 repositories {
     // ref: https://www.baeldung.com/maven-local-repository
     mavenLocal()
+    mavenCentral()
     maven {
         // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
         url "$rootDir/../node_modules/react-native/android"
@@ -110,7 +112,8 @@ afterEvaluate { project ->
     task androidJavadoc(type: Javadoc) {
         source = android.sourceSets.main.java.srcDirs
         classpath += files(android.bootClasspath)
-        classpath += files(project.getConfigurations().getByName('compile').asList())
+        project.getConfigurations().getByName('implementation').setCanBeResolved(true)
+        classpath += files(project.getConfigurations().getByName('implementation').asList())
         include '**/*.java'
     }
 
@@ -134,17 +137,50 @@ afterEvaluate { project ->
         }
     }
 
-    artifacts {
-        archives androidSourcesJar
-        archives androidJavadocJar
-    }
+    publishing.publications {
+        release(MavenPublication) {
+            def packageJson = new groovy.json.JsonSlurper().parseText(file('../package.json').text)
+            from components.release
+            artifactId packageJson.name
+            version = packageJson.version
+            group = "com.reactlibrary"
+            description packageJson.description
+            artifact(androidSourcesJar)
+            artifact(androidJavadocJar)
 
-    task installArchives(type: Upload) {
-        configuration = configurations.archives
-        repositories.mavenDeployer {
-            // Deploy to react-native-event-bridge/maven, ready to publish to npm
-            repository url: "file://${projectDir}/../android/maven"
-            configureReactNativePom pom
+            pom {
+                name = packageJson.title
+                url = packageJson.repository.baseUrl
+                licenses {
+                    license {
+                        name = packageJson.license
+                        url = packageJson.repository.baseUrl + '/blob/master/' + packageJson.licenseFilename
+                        distribution = 'repo'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = packageJson.author.username
+                        name = packageJson.author.name
+                    }
+                }
+            }
+        }
+    }
+}
+
+def myAttribute = Attribute.of("com.android.build.api.attributes.BuildTypeAttr", String)
+
+dependencies.attributesSchema {
+    // registers this attribute to the attributes schema
+    attribute(myAttribute)
+}
+
+configurations {
+    implementation {
+        attributes {
+            attribute(myAttribute, "release")
         }
     }
 }
