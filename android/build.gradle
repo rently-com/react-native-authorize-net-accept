@@ -37,5 +37,6 @@ android {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'  // From node_modules
-    implementation files('./accept-sdk/accept-sdk-android-release.aar')
+    // implementation files('./accept-sdk/accept-sdk-android-release.aar')
+    implementation(name: 'accept-sdk/accept-sdk-android-release', ext: 'aar')
 }
