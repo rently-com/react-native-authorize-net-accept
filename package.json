@@ -16,8 +16,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jonmercarpio/react-native-authorize-net-accept.git",
-    "baseUrl": "https://github.com/jonmercarpio/react-native-authorize-net-accept"
+    "url": "git+https://github.com/rently-com/react-native-authorize-net-accept.git",
+    "baseUrl": "https://github.com/rently-com/react-native-authorize-net-accept"
   },
   "keywords": [
     "react-native"

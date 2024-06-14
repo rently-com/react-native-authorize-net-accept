@@ -1,0 +1,2 @@
+include ':accept-sdk-android'
+project(':accept-sdk-android').projectDir = new File(rootProject.projectDir, 'src/main/java/net/authorize/acceptsdk')
