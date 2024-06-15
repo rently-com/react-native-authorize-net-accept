@@ -20,7 +20,7 @@ buildscript {
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
+// apply plugin: 'maven-publish'
 
 android {
     namespace "com.reactlibrary"
@@ -93,18 +93,18 @@ def configureReactNativePom(def pom) {
 }
 
 afterEvaluate { project ->
-    task androidJavadoc(type: Javadoc) {
-        source = android.sourceSets.main.java.srcDirs
-        project.getConfigurations().getByName('implementation').setCanBeResolved(true)
-        classpath += files(project.getConfigurations().getByName('implementation').asList())
-        include '**/*.java'
-        failOnError false  // Continue the build even if there are errors in Javadoc generation
-    }
+    // task androidJavadoc(type: Javadoc) {
+    //     source = android.sourceSets.main.java.srcDirs
+    //     project.getConfigurations().getByName('implementation').setCanBeResolved(true)
+    //     classpath += files(project.getConfigurations().getByName('implementation').asList())
+    //     include '**/*.java'
+    //     failOnError false  // Continue the build even if there are errors in Javadoc generation
+    // }
 
-    task androidJavadocJar(type: Jar, dependsOn: androidJavadoc) {
-        archiveClassifier = 'javadoc'
-        from androidJavadoc.destinationDir
-    }
+    // task androidJavadocJar(type: Jar, dependsOn: androidJavadoc) {
+    //     archiveClassifier = 'javadoc'
+    //     from androidJavadoc.destinationDir
+    // }
 
     task androidSourcesJar(type: Jar) {
         archiveClassifier = 'sources'
@@ -123,29 +123,29 @@ afterEvaluate { project ->
 
     artifacts {
         archives androidSourcesJar
-        archives androidJavadocJar
+        // archives androidJavadocJar
     }
 
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                afterEvaluate {
-                    from components.findByName("android")
-                }
-                artifact androidSourcesJar
-                artifact androidJavadocJar
+    // publishing {
+    //     publications {
+    //         mavenJava(MavenPublication) {
+    //             afterEvaluate {
+    //                 from components.findByName("android")
+    //             }
+    //             artifact androidSourcesJar
+    //             artifact androidJavadocJar
 
-                pom.withXml {
-                    def xml = asNode()
-                    configureReactNativePom(xml)
-                }
-            }
-        }
-        repositories {
-            maven {
-                // Deploy to react-native-event-bridge/maven, ready to publish to npm
-                url = uri("${projectDir}/../android/maven")
-            }
-        }
-    }
+    //             pom.withXml {
+    //                 def xml = asNode()
+    //                 configureReactNativePom(xml)
+    //             }
+    //         }
+    //     }
+    //     repositories {
+    //         maven {
+    //             // Deploy to react-native-event-bridge/maven, ready to publish to npm
+    //             url = uri("${projectDir}/../android/maven")
+    //         }
+    //     }
+    // }
 }
